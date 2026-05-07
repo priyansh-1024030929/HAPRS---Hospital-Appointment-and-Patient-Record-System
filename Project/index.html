@@ -2,35 +2,133 @@
 <html>
 <head>
     <title>HAPRS - Patient Form</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+            form input,
+            form select {
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                outline: none;
+                transition: 0.2s;
+            }
+
+                form input:focus,
+                form select:focus {
+                    border-color: #3498db;
+                    box-shadow: 0 0 5px rgba(52,152,219,0.4);
+                }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #3498db;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            button:hover {
+                background: #2980b9;
+            }
+
+        .section {
+            margin-top: 30px;
+        }
+
+        #patientList {
+            list-style: none;
+            padding: 0;
+        }
+
+            #patientList li {
+                background: #ecf0f1;
+                margin: 8px 0;
+                padding: 10px;
+                border-radius: 8px;
+            }
+
+        .load-btn {
+            margin-top: 10px;
+            background: #2ecc71;
+        }
+
+            .load-btn:hover {
+                background: #27ae60;
+            }
+    </style>
 </head>
+
 <body>
 
-    <h2>Add Patient</h2>
+    <div class="container">
 
-    <form id="patientForm">
-        <input type="text" id="firstName" placeholder="First Name" required><br><br>
-        <input type="text" id="lastName" placeholder="Last Name" required><br><br>
-        <input type="date" id="dob" required><br><br>
+        <h2>🏥 Add Patient</h2>
 
-        <select id="gender">
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-        </select><br><br>
+        <form id="patientForm">
 
-        <input type="text" id="phone" placeholder="Phone"><br><br>
-        <input type="email" id="email" placeholder="Email"><br><br>
-        <input type="text" id="address" placeholder="Address"><br><br>
-        <input type="text" id="bloodgrp" placeholder="Blood Group"><br><br>
-        <input type="text" id="insuranceID" placeholder="Insurance ID"><br><br>
-        <input type="date" id="registrationDate"><br><br>
+            <input type="text" id="firstName" placeholder="First Name" required>
+            <input type="text" id="lastName" placeholder="Last Name" required>
 
-        <button type="submit">Add Patient</button>
-    </form>
+            <input type="date" id="dob" required>
 
-    <h2>All Patients</h2>
-    <button onclick="loadPatients()">Load Patients</button>
+            <select id="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
 
-    <ul id="patientList"></ul>
+            <input type="text" id="phone" placeholder="Phone">
+            <input type="email" id="email" placeholder="Email">
+
+            <input type="text" id="address" placeholder="Address">
+            <input type="text" id="bloodgrp" placeholder="Blood Group">
+
+            <input type="text" id="insuranceID" placeholder="Insurance ID">
+            <input type="date" id="registrationDate">
+
+            <button class="full-width" type="submit">Add Patient</button>
+        </form>
+
+        <div class="section">
+            <h2>📋 All Patients</h2>
+            <button class="load-btn" onclick="loadPatients()">Load Patients</button>
+            <ul id="patientList"></ul>
+        </div>
+
+    </div>
 
     <script>
         document.getElementById("patientForm").addEventListener("submit", function (e) {
@@ -51,9 +149,7 @@
 
             fetch("http://127.0.0.1:5000/patients", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             })
                 .then(res => res.json())
@@ -64,7 +160,6 @@
                 .catch(err => console.error(err));
         });
 
-
         function loadPatients() {
             fetch("http://127.0.0.1:5000/patients")
                 .then(res => res.json())
@@ -74,7 +169,7 @@
 
                     data.forEach(p => {
                         const li = document.createElement("li");
-                        li.textContent = p.firstName + " " + p.lastName + " (" + p.pid + ")";
+                        li.textContent = `${p.firstName} ${p.lastName} (ID: ${p.pid})`;
                         list.appendChild(li);
                     });
                 });

@@ -2,122 +2,216 @@
 <html>
 <head>
     <title>HAPRS - Add Appointment</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        input, select, textarea {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        textarea {
+            grid-column: span 2;
+            resize: none;
+            height: 80px;
+        }
+
+            input:focus, select:focus, textarea:focus {
+                border-color: #3498db;
+                box-shadow: 0 0 5px rgba(52,152,219,0.4);
+            }
+
+        .full {
+            grid-column: span 2;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #3498db;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            button:hover {
+                background: #2980b9;
+            }
+
+        .section {
+            margin-top: 30px;
+        }
+
+        .load-btn {
+            background: #2ecc71;
+            margin-bottom: 15px;
+        }
+
+            .load-btn:hover {
+                background: #27ae60;
+            }
+
+        #appointmentList {
+            list-style: none;
+            padding: 0;
+        }
+
+            #appointmentList li {
+                background: #ecf0f1;
+                margin: 8px 0;
+                padding: 12px;
+                border-radius: 8px;
+                font-size: 14px;
+                line-height: 1.4;
+            }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: white;
+        }
+
+        .Completed {
+            background: #2ecc71;
+        }
+
+        .Cancelled {
+            background: #e74c3c;
+        }
+
+        .Not\ Completed {
+            background: #f39c12;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h2>Book Appointment</h2>
+    <div class="container">
 
-    <form id="appointmentForm">
+        <h2>📅 Book Appointment</h2>
 
-        <input type="number" id="pid" placeholder="Patient ID" required>
-        <br><br>
+        <form id="appointmentForm">
 
-        <input type="number" id="did" placeholder="Doctor ID" required>
-        <br><br>
+            <input type="number" id="pid" placeholder="Patient ID" required>
+            <input type="number" id="did" placeholder="Doctor ID" required>
 
-        <input type="date" id="aptDate" required>
-        <br><br>
+            <input type="date" id="aptDate" required>
+            <input type="time" id="aptTime" required>
 
-        <input type="time" id="aptTime" required>
-        <br><br>
+            <select id="status" class="full">
+                <option value="Not Completed">Not Completed</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
 
-        <select id="status">
-            <option value="Not Completed">Not Completed</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-        </select>
-        <br><br>
+            <textarea id="reasonForVisit" placeholder="Reason for visit"></textarea>
 
-        <textarea id="reasonForVisit" placeholder="Reason For Visit"></textarea>
-        <br><br>
+            <button class="full" type="submit">Book Appointment</button>
 
-        <button type="submit">Book Appointment</button>
+        </form>
 
-    </form>
+        <div class="section">
+            <h2>📋 Appointments</h2>
+            <button class="load-btn" onclick="loadAppointments()">Load Appointments</button>
+            <ul id="appointmentList"></ul>
+        </div>
 
-    <h2>Appointments</h2>
-
-    <button onclick="loadAppointments()">
-        Load Appointments
-    </button>
-
-    <ul id="appointmentList"></ul>
+    </div>
 
     <script>
 
         document.getElementById("appointmentForm")
-        .addEventListener("submit", function(e) {
+            .addEventListener("submit", function (e) {
 
-            e.preventDefault();
+                e.preventDefault();
 
-            const data = {
-                pid: parseInt(document.getElementById("pid").value),
-                did: parseInt(document.getElementById("did").value),
-                aptDate: document.getElementById("aptDate").value,
-                aptTime: document.getElementById("aptTime").value,
-                status: document.getElementById("status").value,
-                reasonForVisit: document.getElementById("reasonForVisit").value
-            };
+                const data = {
+                    pid: parseInt(document.getElementById("pid").value),
+                    did: parseInt(document.getElementById("did").value),
+                    aptDate: document.getElementById("aptDate").value,
+                    aptTime: document.getElementById("aptTime").value,
+                    status: document.getElementById("status").value,
+                    reasonForVisit: document.getElementById("reasonForVisit").value
+                };
 
-            fetch("http://127.0.0.1:5000/appointments", {
+                fetch("http://127.0.0.1:5000/appointments", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.message);
+                        document.getElementById("appointmentForm").reset();
+                    })
+                    .catch(err => console.error(err));
 
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify(data)
-
-            })
-
-            .then(res => res.json())
-
-            .then(data => {
-
-                alert(data.message);
-
-                document.getElementById("appointmentForm").reset();
-
-            })
-
-            .catch(err => console.error(err));
-
-        });
-
+            });
 
         function loadAppointments() {
 
             fetch("http://127.0.0.1:5000/appointments")
+                .then(res => res.json())
+                .then(data => {
 
-            .then(res => res.json())
+                    const list = document.getElementById("appointmentList");
+                    list.innerHTML = "";
 
-            .then(data => {
+                    data.forEach(a => {
 
-                const list = document.getElementById("appointmentList");
+                        const li = document.createElement("li");
 
-                list.innerHTML = "";
+                        li.innerHTML = `
+                    <b>ID:</b> ${a.aid} |
+                    <b>Patient:</b> ${a.pid} |
+                    <b>Doctor:</b> ${a.did} <br>
+                    <b>Date:</b> ${a.aptDate} |
+                    <b>Time:</b> ${a.aptTime} <br>
+                    <b>Status:</b> <span class="badge">${a.status}</span> <br>
+                    <b>Reason:</b> ${a.reasonForVisit}
+                `;
 
-                data.forEach(a => {
+                        list.appendChild(li);
 
-                    const li = document.createElement("li");
+                    });
 
-                    li.textContent =
-                        "Appointment ID: " + a.aid +
-                        " | Patient ID: " + a.pid +
-                        " | Doctor ID: " + a.did +
-                        " | Date: " + a.aptDate +
-                        " | Time: " + a.aptTime +
-                        " | Status: " + a.status;
-
-                    list.appendChild(li);
-
-                });
-
-            })
-
-            .catch(err => console.error(err));
+                })
+                .catch(err => console.error(err));
 
         }
 
