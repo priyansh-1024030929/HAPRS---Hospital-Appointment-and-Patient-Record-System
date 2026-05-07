@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HAPRS - Patient Form</title>
+</head>
+<body>
+
+    <h2>Add Patient</h2>
+
+    <form id="patientForm">
+        <input type="text" id="firstName" placeholder="First Name" required><br><br>
+        <input type="text" id="lastName" placeholder="Last Name" required><br><br>
+        <input type="date" id="dob" required><br><br>
+
+        <select id="gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select><br><br>
+
+        <input type="text" id="phone" placeholder="Phone"><br><br>
+        <input type="email" id="email" placeholder="Email"><br><br>
+        <input type="text" id="address" placeholder="Address"><br><br>
+        <input type="text" id="bloodgrp" placeholder="Blood Group"><br><br>
+        <input type="text" id="insuranceID" placeholder="Insurance ID"><br><br>
+        <input type="date" id="registrationDate"><br><br>
+
+        <button type="submit">Add Patient</button>
+    </form>
+
+    <h2>All Patients</h2>
+    <button onclick="loadPatients()">Load Patients</button>
+
+    <ul id="patientList"></ul>
+
+    <script>
+        document.getElementById("patientForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const data = {
+                firstName: document.getElementById("firstName").value,
+                lastName: document.getElementById("lastName").value,
+                dob: document.getElementById("dob").value,
+                gender: document.getElementById("gender").value,
+                phone: document.getElementById("phone").value,
+                email: document.getElementById("email").value,
+                address: document.getElementById("address").value,
+                bloodgrp: document.getElementById("bloodgrp").value,
+                insuranceID: document.getElementById("insuranceID").value,
+                registrationDate: document.getElementById("registrationDate").value
+            };
+
+            fetch("http://127.0.0.1:5000/patients", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.message);
+                    document.getElementById("patientForm").reset();
+                })
+                .catch(err => console.error(err));
+        });
+
+
+        function loadPatients() {
+            fetch("http://127.0.0.1:5000/patients")
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("patientList");
+                    list.innerHTML = "";
+
+                    data.forEach(p => {
+                        const li = document.createElement("li");
+                        li.textContent = p.firstName + " " + p.lastName + " (" + p.pid + ")";
+                        list.appendChild(li);
+                    });
+                });
+        }
+    </script>
+
+</body>
+</html>
