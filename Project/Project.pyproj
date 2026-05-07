@@ -25,6 +25,7 @@
     <Compile Include="Project.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="apt.html" />
     <Content Include="index.html" />
     <Content Include="schema.sql" />
   </ItemGroup>

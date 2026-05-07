@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HAPRS - Add Appointment</title>
+</head>
+
+<body>
+
+    <h2>Book Appointment</h2>
+
+    <form id="appointmentForm">
+
+        <input type="number" id="pid" placeholder="Patient ID" required>
+        <br><br>
+
+        <input type="number" id="did" placeholder="Doctor ID" required>
+        <br><br>
+
+        <input type="date" id="aptDate" required>
+        <br><br>
+
+        <input type="time" id="aptTime" required>
+        <br><br>
+
+        <select id="status">
+            <option value="Not Completed">Not Completed</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+        <br><br>
+
+        <textarea id="reasonForVisit" placeholder="Reason For Visit"></textarea>
+        <br><br>
+
+        <button type="submit">Book Appointment</button>
+
+    </form>
+
+    <h2>Appointments</h2>
+
+    <button onclick="loadAppointments()">
+        Load Appointments
+    </button>
+
+    <ul id="appointmentList"></ul>
+
+    <script>
+
+        document.getElementById("appointmentForm")
+        .addEventListener("submit", function(e) {
+
+            e.preventDefault();
+
+            const data = {
+                pid: parseInt(document.getElementById("pid").value),
+                did: parseInt(document.getElementById("did").value),
+                aptDate: document.getElementById("aptDate").value,
+                aptTime: document.getElementById("aptTime").value,
+                status: document.getElementById("status").value,
+                reasonForVisit: document.getElementById("reasonForVisit").value
+            };
+
+            fetch("http://127.0.0.1:5000/appointments", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(data)
+
+            })
+
+            .then(res => res.json())
+
+            .then(data => {
+
+                alert(data.message);
+
+                document.getElementById("appointmentForm").reset();
+
+            })
+
+            .catch(err => console.error(err));
+
+        });
+
+
+        function loadAppointments() {
+
+            fetch("http://127.0.0.1:5000/appointments")
+
+            .then(res => res.json())
+
+            .then(data => {
+
+                const list = document.getElementById("appointmentList");
+
+                list.innerHTML = "";
+
+                data.forEach(a => {
+
+                    const li = document.createElement("li");
+
+                    li.textContent =
+                        "Appointment ID: " + a.aid +
+                        " | Patient ID: " + a.pid +
+                        " | Doctor ID: " + a.did +
+                        " | Date: " + a.aptDate +
+                        " | Time: " + a.aptTime +
+                        " | Status: " + a.status;
+
+                    list.appendChild(li);
+
+                });
+
+            })
+
+            .catch(err => console.error(err));
+
+        }
+
+    </script>
+
+</body>
+</html>
